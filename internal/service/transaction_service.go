@@ -61,8 +61,8 @@ func (s *TransactionService) SendCoins(fromUserName string, toUserName string, a
 
 	// Создаём запись о транзакции
 	transaction := model.Transaction{
-		FromUser: fromUser.Name,
-		ToUser:   toUser.Name,
+		FromUser: fromUser.ID,
+		ToUser:   toUser.ID,
 		Amount:   amount,
 	}
 	if err := tx.Create(&transaction).Error; err != nil {
