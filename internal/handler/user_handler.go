@@ -25,18 +25,13 @@ func (h *UserHandler) AuthHandler(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.Authenticate(req.Name, req.Password)
+	token, err := h.userService.Authenticate(req.Name, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "успешный вход",
-		"user": gin.H{
-			"id":      user.ID,
-			"name":    user.Name,
-			"balance": user.Balance,
-		},
+		"token": token,
 	})
 }

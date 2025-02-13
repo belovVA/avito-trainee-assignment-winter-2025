@@ -1,9 +1,12 @@
 package service
 
 import (
+	"avito-coin-service/internal/middleware"
 	models "avito-coin-service/internal/model"
 	"avito-coin-service/internal/repository"
-	"errors"
+	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
@@ -11,28 +14,63 @@ type UserService struct {
 }
 
 func NewUserService(userRepo *repository.UserRepository) *UserService {
+
 	return &UserService{userRepo}
 }
 
-func (s *UserService) Authenticate(name, password string) (*models.User, error) {
+func (s *UserService) Authenticate(name, password string) (string, error) {
 	user, err := s.userRepo.GetByName(name)
+
 	if err != nil {
-		// Если пользователя нет — создаем
-		user = &models.User{
-			Name:     name,
-			Password: password, // ⚠️ Надо бы хешировать, но пока так
-			Balance:  1000,
+
+		if hashPass, err := HashPassword(password); err != nil {
+			return "", err
+
+		} else {
+			user = &models.User{
+				Name:     name,
+				Password: hashPass,
+				Balance:  1000,
+			}
 		}
+
 		if err := s.userRepo.Create(user); err != nil {
-			return nil, err
+			return "", err
 		}
-		return user, nil
+
+		if token, err := middleware.CreateToken(user.Name); err != nil {
+			return "", err
+
+		} else {
+			return token, nil
+		}
 	}
 
-	// Проверка пароля (позже заменим на хеш)
-	if user.Password != password {
-		return nil, errors.New("неверный пароль")
+	if !ComparePasswords(user.Password, password) {
+		return "", fmt.Errorf("неверный пароль")
 	}
 
-	return user, nil
+	if token, err := middleware.CreateToken(user.Name); err != nil {
+		return "", err
+	} else {
+		return token, nil
+	}
+}
+
+func HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	if err != nil {
+
+		return "", err
+	}
+
+	return string(hash), nil
+}
+
+// ComparePasswords сравнивает хэшированный пароль с введенным
+func ComparePasswords(hashedPassword, plainPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
+
+	return err == nil
 }
