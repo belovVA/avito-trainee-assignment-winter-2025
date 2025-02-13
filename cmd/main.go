@@ -12,7 +12,7 @@ import (
 
 func main() {
 	database.InitDB()
-	database.Migrate()
+	// database.Migrate()
 
 	userRepo := repository.NewUserRepository()
 	userService := service.NewUserService(userRepo)
@@ -25,6 +25,7 @@ func main() {
 	auth.Use(middleware.AuthMiddleware()) // 🔒 Middleware проверяет JWT
 	{
 		auth.POST("/sendCoin", handler.SendCoinHandler)
+		auth.GET("/buy/:item", handler.PurchaseHandler)
 	}
 	r.POST("/api/auth", userHandler.AuthHandler)
 
