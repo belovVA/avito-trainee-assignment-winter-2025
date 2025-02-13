@@ -5,3 +5,7 @@ type Merch struct {
 	Name  string `gorm:"unique;not null"`
 	Price int    `gorm:"default:1000"`
 }
+
+func (Merch) TableName() string {
+	return "merch"
+}

@@ -12,6 +12,11 @@ func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }
 
+func (r *UserRepository) Create(user *model.User) error {
+
+	return database.DB.Create(user).Error
+}
+
 func (r *UserRepository) GetByName(name string) (*model.User, error) {
 	var user model.User
 
@@ -21,9 +26,4 @@ func (r *UserRepository) GetByName(name string) (*model.User, error) {
 	}
 
 	return &user, nil
-}
-
-func (r *UserRepository) Create(user *model.User) error {
-
-	return database.DB.Create(user).Error
 }
