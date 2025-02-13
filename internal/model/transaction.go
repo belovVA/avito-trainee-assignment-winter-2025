@@ -1,9 +1,7 @@
 package model
 
-import "gorm.io/gorm"
-
 type Transaction struct {
-	gorm.Model
+	ID       uint   `gorm:"primaryKey;autoIncrement"`
 	FromUser string `gorm:"not null"`
 	ToUser   string `gorm:"not null"`
 	Amount   int    `gorm:"default:0"`

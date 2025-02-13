@@ -4,7 +4,7 @@ import (
 	"avito-coin-service/internal/database"
 	"avito-coin-service/internal/model"
 	"avito-coin-service/internal/repository"
-	"errors"
+	"fmt"
 )
 
 type TransactionService struct {
@@ -24,18 +24,22 @@ func (s *TransactionService) SendCoins(fromUserName string, toUserName string, a
 	// Получаем отправителя
 	fromUser, err := s.userRepo.GetByName(fromUserName)
 	if err != nil {
-		return errors.New("отправитель не найден")
+		return fmt.Errorf("отправитель не найден")
 	}
 
 	// Получаем получателя
 	toUser, err := s.userRepo.GetByName(toUserName)
 	if err != nil {
-		return errors.New("получатель не найден")
+		return fmt.Errorf("получатель не найден")
+	}
+
+	if toUser.ID == fromUser.ID {
+		return fmt.Errorf("Невозможно осуществить перевод самому себе")
 	}
 
 	// Проверяем баланс
 	if fromUser.Balance < amount {
-		return errors.New("недостаточно средств")
+		return fmt.Errorf("недостаточно средств")
 	}
 
 	// Начинаем транзакцию
