@@ -5,5 +5,5 @@ CREATE TABLE purchases (
     count INT NOT NULL DEFAULT 1 CHECK (count > 0),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (merch_id) REFERENCES merch(id) ON DELETE CASCADE,
-    UNIQUE (user_id, merch_id) -- гарантирует, что у одного пользователя не будет дубликатов товаров
+    UNIQUE (user_id, merch_id)
 );
