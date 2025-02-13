@@ -3,6 +3,7 @@ package main
 import (
 	"avito-coin-service/internal/database"
 	"avito-coin-service/internal/handler"
+	"avito-coin-service/internal/middleware"
 	"avito-coin-service/internal/repository"
 	"avito-coin-service/internal/service"
 
@@ -18,6 +19,13 @@ func main() {
 	userHandler := handler.NewUserHandler(userService)
 
 	r := gin.Default()
+
+	// Группа маршрутов, требующих аутентификации
+	auth := r.Group("/api")
+	auth.Use(middleware.AuthMiddleware()) // 🔒 Middleware проверяет JWT
+	{
+		auth.POST("/sendCoin", handler.SendCoinHandler)
+	}
 	r.POST("/api/auth", userHandler.AuthHandler)
 
 	r.Run(":8080")

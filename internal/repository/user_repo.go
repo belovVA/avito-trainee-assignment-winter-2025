@@ -2,7 +2,7 @@ package repository
 
 import (
 	"avito-coin-service/internal/database"
-	models "avito-coin-service/internal/model"
+	"avito-coin-service/internal/model"
 )
 
 type UserRepository struct{}
@@ -12,8 +12,8 @@ func NewUserRepository() *UserRepository {
 	return &UserRepository{}
 }
 
-func (r *UserRepository) GetByName(name string) (*models.User, error) {
-	var user models.User
+func (r *UserRepository) GetByName(name string) (*model.User, error) {
+	var user model.User
 
 	if err := database.DB.Where("name = ?", name).First(&user).Error; err != nil {
 
@@ -23,7 +23,7 @@ func (r *UserRepository) GetByName(name string) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) Create(user *models.User) error {
+func (r *UserRepository) Create(user *model.User) error {
 
 	return database.DB.Create(user).Error
 }
