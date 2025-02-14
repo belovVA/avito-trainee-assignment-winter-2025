@@ -11,7 +11,22 @@ func NewTransactionRepository() *TransactionRepository {
 	return &TransactionRepository{}
 }
 
-// Create — создаёт запись о транзакции
 func (r *TransactionRepository) Create(tx *model.Transaction) error {
 	return database.DB.Create(tx).Error
+}
+
+func (r *TransactionRepository) GetListRecievedTransactionByID(ID uint) ([]*model.Transaction, error) {
+	var trxs []*model.Transaction
+	if err := database.DB.Where("to_user = ?", ID).Find(&trxs).Error; err != nil {
+		return nil, err
+	}
+	return trxs, nil
+}
+
+func (r *TransactionRepository) GetListSentTransactionByID(ID uint) ([]*model.Transaction, error) {
+	var trxs []*model.Transaction
+	if err := database.DB.Where("from_user = ?", ID).Find(&trxs).Error; err != nil {
+		return nil, err
+	}
+	return trxs, nil
 }
