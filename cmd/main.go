@@ -26,6 +26,7 @@ func main() {
 	{
 		auth.POST("/sendCoin", handler.SendCoinHandler)
 		auth.GET("/buy/:item", handler.PurchaseHandler)
+		auth.GET("/info", handler.InfoHandler)
 	}
 	r.POST("/api/auth", userHandler.AuthHandler)
 
