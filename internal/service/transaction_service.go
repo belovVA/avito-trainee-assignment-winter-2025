@@ -33,11 +33,14 @@ func (s *TransactionService) SendCoins(fromUserName string, toUserName string, a
 		return fmt.Errorf("получатель не найден")
 	}
 
-	if toUser.ID == fromUser.ID {
-		return fmt.Errorf("Невозможно осуществить перевод самому себе")
+	if amount < 0 {
+		return fmt.Errorf("отрицательное значение суммы перевода")
 	}
 
-	// Проверяем баланс
+	if toUser.ID == fromUser.ID {
+		return fmt.Errorf("невозможно осуществить перевод самому себе")
+	}
+
 	if fromUser.Balance < amount {
 		return fmt.Errorf("недостаточно средств")
 	}
