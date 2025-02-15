@@ -1,14 +1,13 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
-
 	"avito-coin-service/config"
 	"avito-coin-service/internal/database"
 	"avito-coin-service/internal/handler"
 	"avito-coin-service/internal/middleware"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
