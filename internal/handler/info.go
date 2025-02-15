@@ -1,14 +1,25 @@
 package handler
 
 import (
-	"avito-coin-service/internal/repository"
 	"avito-coin-service/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InfoHandler(c *gin.Context) {
+type InfoH interface {
+	InfoHandler(c *gin.Context)
+}
+
+type infohdl struct {
+	infoService service.InfoService
+}
+
+func NewInfoHandler(infsrv service.InfoService) InfoH {
+	return &infohdl{infsrv}
+}
+
+func (h *infohdl) InfoHandler(c *gin.Context) {
 	// Получаем имя отправителя из JWT
 	user, exists := c.Get("userName")
 	if !exists {
@@ -16,14 +27,7 @@ func InfoHandler(c *gin.Context) {
 		return
 	}
 
-	userRepo := repository.NewUserRepository()
-	trxRepo := repository.NewTransactionRepository()
-	merchRepo := repository.NewMerchRepository()
-	purchaseRepo := repository.NewPurchaseRepository()
-
-	infoService := service.NewInfoService(userRepo, trxRepo, merchRepo, purchaseRepo)
-
-	if answ, err := infoService.GetInfo(user.(string)); err != nil {
+	if answ, err := h.infoService.GetInfo(user.(string)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	} else {

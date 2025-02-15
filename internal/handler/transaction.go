@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"avito-coin-service/internal/repository"
 	"avito-coin-service/internal/service"
 	"net/http"
 
@@ -14,7 +13,19 @@ type SendCoinRequest struct {
 	Amount int    `json:"amount" binding:"required"`
 }
 
-func SendCoinHandler(c *gin.Context) {
+type TransactionH interface {
+	SendCoinHandler(c *gin.Context)
+}
+
+type trxHandler struct {
+	trxService service.TransactionService
+}
+
+func NewTransactionHandler(trxService service.TransactionService) TransactionH {
+	return &trxHandler{trxService}
+}
+
+func (t *trxHandler) SendCoinHandler(c *gin.Context) {
 	var req SendCoinRequest
 
 	// Проверяем тело запроса
@@ -35,12 +46,8 @@ func SendCoinHandler(c *gin.Context) {
 		return
 	}
 
-	userRepo := repository.NewUserRepository()
-	txRepo := repository.NewTransactionRepository()
-	txService := service.NewTransactionService(userRepo, txRepo)
-
 	// Выполняем перевод монет
-	err := txService.SendCoins(fromUserName.(string), req.ToUser, req.Amount)
+	err := t.trxService.SendCoins(fromUserName.(string), req.ToUser, req.Amount)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return

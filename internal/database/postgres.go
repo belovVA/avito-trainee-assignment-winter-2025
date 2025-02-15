@@ -2,8 +2,7 @@ package database
 
 import (
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
+	"log"
 
 	"avito-coin-service/config"
 
@@ -11,26 +10,31 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+type PG struct {
+	DBptr *gorm.DB
+}
 
-func InitDB(cfg *config.Config) {
+func InitDB(cfg *config.PGConfig) *PG {
 	// Используем данные из конфигурации
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		cfg.DBHost,
-		cfg.DBUser,
-		cfg.DBPassword,
-		cfg.DBName,
-		cfg.DBPort,
+		cfg.Host,
+		cfg.User,
+		cfg.Password,
+		cfg.Name,
+		cfg.Port,
 	)
 
 	// Подключаемся к базе данных
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Error to connect DB:", err)
+		log.Fatalf("Error to connect DB: %s", err)
 	}
 
-	DB = db
+	log.Println("DB Connected")
 
-	log.Info("DB Connected")
+	return &PG{
+		DBptr: db,
+	}
+
 }

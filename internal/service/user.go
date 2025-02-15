@@ -9,22 +9,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type IUserService interface {
+type UserService interface {
 	Authenticate(name, password string) (string, error)
 }
 
-type UserService struct {
-	userRepo repository.IUserRepository
+type usrSrv struct {
+	userRepo repository.UserRepository
 }
 
 func NewUserService(
-	userRepo repository.IUserRepository,
-) *UserService {
+	userRepo repository.UserRepository,
+) UserService {
 
-	return &UserService{userRepo}
+	return &usrSrv{userRepo}
 }
 
-func (s *UserService) Authenticate(name, password string) (string, error) {
+func (s *usrSrv) Authenticate(name, password string) (string, error) {
 	user, err := s.userRepo.GetByName(name)
 
 	if err != nil {

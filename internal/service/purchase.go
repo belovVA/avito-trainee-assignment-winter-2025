@@ -1,36 +1,34 @@
 package service
 
 import (
-	"avito-coin-service/internal/database"
-	"avito-coin-service/internal/model"
 	"avito-coin-service/internal/repository"
 	"fmt"
 )
 
-type IPurchaseService interface {
+type PurchaseService interface {
 	BuyMerch(userName string, merchName string) error
 }
 
-type purchaseService struct {
-	userRepo     repository.IUserRepository
-	merchRepo    repository.IMerchRepository
-	purchaseRepo repository.IPurchaseRepository
+type purchase struct {
+	userRepo     repository.UserRepository
+	merchRepo    repository.MerchRepository
+	purchaseRepo repository.PurchaseRepository
 }
 
 func NewPurchaseService(
-	userRepo repository.IUserRepository,
-	merchRepo repository.IMerchRepository,
-	purchaseRepo repository.IPurchaseRepository,
-) *purchaseService {
+	userRepo repository.UserRepository,
+	merchRepo repository.MerchRepository,
+	purchaseRepo repository.PurchaseRepository,
+) *purchase {
 
-	return &purchaseService{
+	return &purchase{
 		userRepo:     userRepo,
 		merchRepo:    merchRepo,
 		purchaseRepo: purchaseRepo,
 	}
 }
 
-func (s *purchaseService) BuyMerch(userName string, merchName string) error {
+func (s *purchase) BuyMerch(userName string, merchName string) error {
 
 	user, err := s.userRepo.GetByName(userName)
 	if err != nil {
@@ -46,38 +44,39 @@ func (s *purchaseService) BuyMerch(userName string, merchName string) error {
 		return fmt.Errorf("Недостаточно средств на балансе")
 	}
 
-	// Начинаем транзакцию
-	tx := database.DB.Begin()
+	// // Начинаем транзакцию
+	// tx := database.DB.Begin()
 
-	user.Balance -= merch.Price
+	// user.Balance -= merch.Price
 
-	if err := tx.Save(user).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if purchase, err := s.purchaseRepo.GetByUserAndMerch(user.ID, merch.ID); err != nil {
-		purchase := model.Purchase{
-			UserID:  user.ID,
-			MerchID: merch.ID,
-			Count:   1,
-		}
+	// if err := tx.Save(user).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
+	// if purchase, err := s.purchaseRepo.GetByUserAndMerch(user.ID, merch.ID); err != nil {
+	// 	purchase := model.Purchase{
+	// 		UserID:  user.ID,
+	// 		MerchID: merch.ID,
+	// 		Count:   1,
+	// 	}
 
-		if err := s.purchaseRepo.Create(&purchase); err != nil {
-			tx.Rollback()
-			return err
-		}
+	// 	if err := s.purchaseRepo.Create(&purchase); err != nil {
+	// 		tx.Rollback()
+	// 		return err
+	// 	}
 
-	} else if purchase != nil {
+	// } else if purchase != nil {
 
-		purchase.Count += 1
-		if err := s.purchaseRepo.Update(*purchase); err != nil {
-			tx.Rollback()
-			return fmt.Errorf("Не удалось обновить данные")
-		}
-	} else {
-		tx.Rollback()
-		return fmt.Errorf("Ошибка сервера")
-	}
+	// 	purchase.Count += 1
+	// 	if err := s.purchaseRepo.Update(*purchase); err != nil {
+	// 		tx.Rollback()
+	// 		return fmt.Errorf("Не удалось обновить данные")
+	// 	}
+	// } else {
+	// 	tx.Rollback()
+	// 	return fmt.Errorf("Ошибка сервера")
+	// }
 
-	return tx.Commit().Error
+	// return tx.Commit().Error
+	return nil
 }

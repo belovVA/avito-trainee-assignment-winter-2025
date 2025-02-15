@@ -1,30 +1,35 @@
 package repository
 
 import (
-	"avito-coin-service/internal/database"
 	"avito-coin-service/internal/model"
+
+	"gorm.io/gorm"
 )
 
-type IMerchRepository interface {
+type MerchRepository interface {
 	Create(tx *model.Merch) error
 	GetByID(id uint) (*model.Merch, error)
 	GetByName(name string) (*model.Merch, error)
 }
 
-type merchRepository struct{}
-
-func NewMerchRepository() IMerchRepository {
-	return &merchRepository{}
+type merchRep struct {
+	DB *gorm.DB
 }
 
-func (r *merchRepository) Create(tx *model.Merch) error {
-	return database.DB.Create(tx).Error
+func NewMerchRepository(DB *gorm.DB) MerchRepository {
+	return &merchRep{
+		DB: DB,
+	}
 }
 
-func (r *merchRepository) GetByID(id uint) (*model.Merch, error) {
+func (r *merchRep) Create(tx *model.Merch) error {
+	return r.DB.Create(tx).Error
+}
+
+func (r *merchRep) GetByID(id uint) (*model.Merch, error) {
 	var merch model.Merch
 
-	if err := database.DB.Where("id = ?", id).First(&merch).Error; err != nil {
+	if err := r.DB.Where("id = ?", id).First(&merch).Error; err != nil {
 
 		return nil, err
 	}
@@ -32,10 +37,10 @@ func (r *merchRepository) GetByID(id uint) (*model.Merch, error) {
 	return &merch, nil
 }
 
-func (r *merchRepository) GetByName(name string) (*model.Merch, error) {
+func (r *merchRep) GetByName(name string) (*model.Merch, error) {
 	var merch model.Merch
 
-	if err := database.DB.Where("name = ?", name).First(&merch).Error; err != nil {
+	if err := r.DB.Where("name = ?", name).First(&merch).Error; err != nil {
 
 		return nil, err
 	}

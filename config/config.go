@@ -1,43 +1,58 @@
 package config
 
 import (
-	"avito-coin-service/internal/middleware"
-	"os"
+	"log"
 
 	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
-// Config хранит все конфигурационные параметры
-type Config struct {
-	DBHost     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBPort     string
-	JWTSecret  string
+type PGConfig struct {
+	Host     string `envconfig:"DATABASE_HOST" required:"true"`
+	Port     string `envconfig:"DATABASE_PORT" required:"true"`
+	User     string `envconfig:"DATABASE_USER" required:"true"`
+	Password string `envconfig:"DATABASE_PASSWORD" required:"true"`
+	Name     string `envconfig:"DATABASE_NAME" required:"true"`
 }
 
-func LoadConfig() (*Config, error) {
-	err := godotenv.Load()
-
-	config := &Config{
-		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", "postgres"),
-		DBName:     getEnv("DB_NAME", "avito"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		JWTSecret:  getEnv("JWT_SECRET", "mySecretKey"),
+func LoadPGConfig() *PGConfig {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err.Error())
+	} else {
+		log.Println(".env file loaded successfully")
 	}
 
-	middleware.InitsecretKey(config.JWTSecret)
-
-	return config, err
-}
-
-func getEnv(key, defaultValue string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return defaultValue
+	var config PGConfig
+	err := envconfig.Process("", &config)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
-	return value
+	return &config
 }
+
+// func LoadPGConfig() *PGConfig {
+// 	if err := godotenv.Load(); err != nil {
+// 		log.Fatal(err.Error())
+// 	}
+
+// 	config := &PGConfig{
+// 		Host:     getEnv("DATABASE_HOST", "localhost"),
+// 		User:     getEnv("DATABASE_USER", "postgres"),
+// 		Password: getEnv("DATABASE_PASSWORD", "postgres"),
+// 		Name:     getEnv("DATABASE_NAME", "avito"),
+// 		Port:     getEnv("DATABASE_PORT", "5432"),
+// 		// JWTSecret:  getEnv("JWT_SECRET", "mySecretKey"),
+// 	}
+
+// 	// middleware.InitsecretKey(config.JWTSecret)
+
+// 	return config
+// }
+
+// func getEnv(key, defaultValue string) string {
+// 	value, exists := os.LookupEnv(key)
+// 	if !exists {
+// 		return defaultValue
+// 	}
+// 	return value
+// }

@@ -6,26 +6,26 @@ import (
 	"fmt"
 )
 
-type IInfoService interface {
+type InfoService interface {
 	GetInfo(userName string) (*model.InfoResponse, error)
 }
 
-type infoService struct {
-	userRepo     repository.IUserRepository
-	txRepo       repository.ITransactionRepository
-	merchRepo    repository.IMerchRepository
-	purchaseRepo repository.IPurchaseRepository
+type infoSrv struct {
+	userRepo     repository.UserRepository
+	txRepo       repository.TransactionRepository
+	merchRepo    repository.MerchRepository
+	purchaseRepo repository.PurchaseRepository
 }
 
 func NewInfoService(
-	userRepo repository.IUserRepository,
-	txRepo repository.ITransactionRepository,
-	merchRepo repository.IMerchRepository,
-	purchaseRepo repository.IPurchaseRepository,
+	userRepo repository.UserRepository,
+	txRepo repository.TransactionRepository,
+	merchRepo repository.MerchRepository,
+	purchaseRepo repository.PurchaseRepository,
 
-) *infoService {
+) *infoSrv {
 
-	return &infoService{
+	return &infoSrv{
 		userRepo:     userRepo,
 		txRepo:       txRepo,
 		merchRepo:    merchRepo,
@@ -33,7 +33,7 @@ func NewInfoService(
 	}
 }
 
-func (s *infoService) GetInfo(userName string) (*model.InfoResponse, error) {
+func (s *infoSrv) GetInfo(userName string) (*model.InfoResponse, error) {
 	user, err := s.userRepo.GetByName(userName)
 	if err != nil {
 		return nil, fmt.Errorf("пользователь не найден")

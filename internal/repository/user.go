@@ -1,32 +1,37 @@
 package repository
 
 import (
-	"avito-coin-service/internal/database"
 	"avito-coin-service/internal/model"
+
+	"gorm.io/gorm"
 )
 
-type IUserRepository interface {
+type UserRepository interface {
 	Create(user *model.User) error
 	GetByID(ID uint) (*model.User, error)
 	GetByName(name string) (*model.User, error)
 }
 
-type UserRepository struct{}
-
-func NewUserRepository() *UserRepository {
-
-	return &UserRepository{}
+type userRep struct {
+	DB *gorm.DB
 }
 
-func (r *UserRepository) Create(user *model.User) error {
+func NewUserRepository(DB *gorm.DB) *userRep {
 
-	return database.DB.Create(user).Error
+	return &userRep{
+		DB: DB,
+	}
 }
 
-func (r *UserRepository) GetByID(ID uint) (*model.User, error) {
+func (r *userRep) Create(user *model.User) error {
+
+	return r.DB.Create(user).Error
+}
+
+func (r *userRep) GetByID(ID uint) (*model.User, error) {
 	var user model.User
 
-	if err := database.DB.Where("id = ?", ID).First(&user).Error; err != nil {
+	if err := r.DB.Where("id = ?", ID).First(&user).Error; err != nil {
 
 		return nil, err
 	}
@@ -34,10 +39,10 @@ func (r *UserRepository) GetByID(ID uint) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) GetByName(name string) (*model.User, error) {
+func (r *userRep) GetByName(name string) (*model.User, error) {
 	var user model.User
 
-	if err := database.DB.Where("name = ?", name).First(&user).Error; err != nil {
+	if err := r.DB.Where("name = ?", name).First(&user).Error; err != nil {
 
 		return nil, err
 	}

@@ -1,22 +1,25 @@
 package handler
 
 import (
-	"avito-coin-service/internal/repository"
 	"avito-coin-service/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UserHandler struct {
-	userService *service.UserService
+type UserHandler interface {
+	AuthHandler(c *gin.Context)
 }
 
-func NewUserHandler(userService *service.UserService) *UserHandler {
-	return &UserHandler{userService}
+type userH struct {
+	userService service.UserService
 }
 
-func AuthHandler(c *gin.Context) {
+func NewUserHandler(userService service.UserService) UserHandler {
+	return &userH{userService}
+}
+
+func (u *userH) AuthHandler(c *gin.Context) {
 	var req struct {
 		Name     string `json:"name"`
 		Password string `json:"password"`
@@ -26,10 +29,7 @@ func AuthHandler(c *gin.Context) {
 		return
 	}
 
-	userRepo := repository.NewUserRepository()
-	userService := service.NewUserService(userRepo)
-
-	token, err := userService.Authenticate(req.Name, req.Password)
+	token, err := u.userService.Authenticate(req.Name, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"errors": err.Error()})
 		return

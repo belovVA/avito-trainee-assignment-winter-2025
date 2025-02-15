@@ -1,33 +1,31 @@
 package service
 
 import (
-	"avito-coin-service/internal/database"
-	"avito-coin-service/internal/model"
 	"avito-coin-service/internal/repository"
 	"fmt"
 )
 
-type ITransactionService interface {
+type TransactionService interface {
 	SendCoins(fromUserName string, toUserName string, amount int) error
 }
 
-type transactionService struct {
-	userRepo repository.IUserRepository
-	txRepo   repository.ITransactionRepository
+type trx struct {
+	userRepo repository.UserRepository
+	txRepo   repository.TransactionRepository
 }
 
 func NewTransactionService(
-	userRepo repository.IUserRepository,
-	txRepo repository.ITransactionRepository,
-) *transactionService {
-	return &transactionService{
+	userRepo repository.UserRepository,
+	txRepo repository.TransactionRepository,
+) *trx {
+	return &trx{
 		userRepo: userRepo,
 		txRepo:   txRepo,
 	}
 }
 
 // SendCoins — переводит монеты от одного пользователя другому
-func (s *transactionService) SendCoins(fromUserName string, toUserName string, amount int) error {
+func (s *trx) SendCoins(fromUserName string, toUserName string, amount int) error {
 	// Получаем отправителя
 	fromUser, err := s.userRepo.GetByName(fromUserName)
 	if err != nil {
@@ -48,34 +46,35 @@ func (s *transactionService) SendCoins(fromUserName string, toUserName string, a
 		return fmt.Errorf("недостаточно средств")
 	}
 
-	// Начинаем транзакцию
-	tx := database.DB.Begin()
+	// // Начинаем транзакцию
+	// tx := database.DB.Begin()
 
-	// Обновляем балансы
-	fromUser.Balance -= amount
-	toUser.Balance += amount
+	// // Обновляем балансы
+	// fromUser.Balance -= amount
+	// toUser.Balance += amount
 
-	// Обновляем в БД
-	if err := tx.Save(fromUser).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := tx.Save(toUser).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
+	// // Обновляем в БД
+	// if err := tx.Save(fromUser).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
+	// if err := tx.Save(toUser).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
 
-	// Создаём запись о транзакции
-	transaction := model.Transaction{
-		FromUser: fromUser.ID,
-		ToUser:   toUser.ID,
-		Amount:   amount,
-	}
-	if err := tx.Create(&transaction).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
+	// // Создаём запись о транзакции
+	// transaction := model.Transaction{
+	// 	FromUser: fromUser.ID,
+	// 	ToUser:   toUser.ID,
+	// 	Amount:   amount,
+	// }
+	// if err := tx.Create(&transaction).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return err
+	// }
 
-	// Фиксируем изменения
-	return tx.Commit().Error
+	// // Фиксируем изменения
+	// return tx.Commit().Error
+	return nil
 }

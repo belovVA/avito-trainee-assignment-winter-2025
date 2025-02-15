@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"avito-coin-service/internal/repository"
 	"avito-coin-service/internal/service"
 	"net/http"
 
@@ -12,7 +11,20 @@ type PurchaseRequest struct {
 	Merch string
 }
 
-func PurchaseHandler(c *gin.Context) {
+type purchaseH interface {
+	PurchaseHandler(c *gin.Context)
+}
+
+type purchaseHandler struct {
+	purchService service.PurchaseService
+}
+
+func NewPurchHandler(p service.PurchaseService) purchaseH {
+	return &purchaseHandler{
+		purchService: p,
+	}
+}
+func (h *purchaseHandler) PurchaseHandler(c *gin.Context) {
 	// item := c.Param("item") // Получаем {item} из URL
 	// c.JSON(http.StatusOK, gin.H{
 	// 	// "message": fmt.Sprintf("Покупка товара: %s", item),
@@ -32,13 +44,9 @@ func PurchaseHandler(c *gin.Context) {
 		return
 	}
 
-	userRepo := repository.NewUserRepository()
-	merchRepo := repository.NewMerchRepository()
-	purchaseRepo := repository.NewPurchaseRepository()
+	// purchService := service.NewPurchaseService(userRepo, merchRepo, purchaseRepo)
 
-	purchService := service.NewPurchaseService(userRepo, merchRepo, purchaseRepo)
-
-	if err := purchService.BuyMerch(user.(string), itemName); err != nil {
+	if err := h.purchService.BuyMerch(user.(string), itemName); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
