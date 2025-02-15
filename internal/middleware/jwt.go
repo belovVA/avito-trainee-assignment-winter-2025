@@ -1,25 +1,29 @@
 package middleware
 
 import (
+	// "avito-coin-service/config"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secretKey = []byte("mySecretKey")
+var secretKey []byte
+
+func InitsecretKey(secret string) {
+	secretKey = []byte(secret)
+}
 
 func CreateToken(userName string) (string, error) {
 	// Создаем claims
 	claims := jwt.MapClaims{
-		"sub": userName,                              // Идентификатор пользователя
-		"exp": time.Now().Add(time.Hour * 72).Unix(), // Время истечения токена
+		"sub": userName,
+		"exp": time.Now().Add(time.Hour * 72).Unix(),
 	}
 
 	// Создаем новый токен с указанием алгоритма и claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	// Подписываем токен и возвращаем строку
 	return token.SignedString(secretKey)
 }
 

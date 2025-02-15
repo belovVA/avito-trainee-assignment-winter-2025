@@ -5,6 +5,8 @@ import (
 	"avito-coin-service/internal/model"
 )
 
+// type MerchRepository
+
 type MerchRepository struct{}
 
 func NewMerchRepository() *MerchRepository {

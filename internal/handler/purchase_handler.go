@@ -22,13 +22,13 @@ func PurchaseHandler(c *gin.Context) {
 
 	// Проверяем, передан ли параметр
 	if itemName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "не указан предмет"})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": "не указан предмет"})
 		return
 	}
 	// Получаем имя отправителя из JWT
 	user, exists := c.Get("userName")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неавторизован"})
+		c.JSON(http.StatusUnauthorized, gin.H{"errors": "Неавторизован"})
 		return
 	}
 
@@ -39,7 +39,7 @@ func PurchaseHandler(c *gin.Context) {
 	purchService := service.NewPurchaseService(userRepo, merchRepo, purchaseRepo)
 
 	if err := purchService.BuyMerch(user.(string), itemName); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 

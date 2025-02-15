@@ -60,7 +60,7 @@ func (s *InfoService) GetInfo(userName string) (*model.InfoResponse, error) {
 			user, err := s.userRepo.GetByID(t.FromUser)
 
 			if err != nil {
-				continue
+				return nil, fmt.Errorf("500")
 			}
 			trx.FromUser = user.Name
 			trx.Amount = uint(t.Amount)
@@ -76,7 +76,7 @@ func (s *InfoService) GetInfo(userName string) (*model.InfoResponse, error) {
 			var trx model.CoinTransaction
 			user, err := s.userRepo.GetByID(t.ToUser)
 			if err != nil {
-				continue
+				return nil, fmt.Errorf("500")
 			}
 			trx.ToUser = user.Name
 			trx.Amount = uint(t.Amount)

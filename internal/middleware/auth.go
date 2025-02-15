@@ -12,7 +12,7 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Токен отсутствует"})
+			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Токен отсутствует"})
 			c.Abort()
 			return
 		}
@@ -20,7 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Ожидаем формат "Bearer <token>"
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный формат токена"})
+			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Неверный формат токена"})
 			c.Abort()
 			return
 		}
@@ -30,7 +30,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Проверяем токен
 		userName, err := ValidateToken(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный токен"})
+			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Неверный токен"})
 			c.Abort()
 			return
 		}

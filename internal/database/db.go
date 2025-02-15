@@ -2,8 +2,10 @@ package database
 
 import (
 	"fmt"
-	"log"
-	"os"
+
+	log "github.com/sirupsen/logrus"
+
+	"avito-coin-service/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,29 +13,24 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+func InitDB(cfg *config.Config) {
+	// Используем данные из конфигурации
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		getEnv("DB_HOST", "localhost"),
-		getEnv("DB_USER", "postgres"),
-		getEnv("DB_PASSWORD", "postgres"),
-		getEnv("DB_NAME", "avito"),
-		getEnv("DB_PORT", "5432"),
+		cfg.DBHost,
+		cfg.DBUser,
+		cfg.DBPassword,
+		cfg.DBName,
+		cfg.DBPort,
 	)
 
+	// Подключаемся к базе данных
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Ошибка подключения к БД:", err)
+		log.Fatal("Error to connect DB:", err)
 	}
 
 	DB = db
-	fmt.Println("Подключено к БД!")
-}
 
-// getEnv — возвращает значение переменной окружения или дефолтное
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return fallback
+	log.Info("DB Connected")
 }

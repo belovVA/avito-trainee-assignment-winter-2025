@@ -12,7 +12,7 @@ func InfoHandler(c *gin.Context) {
 	// Получаем имя отправителя из JWT
 	user, exists := c.Get("userName")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неавторизован"})
+		c.JSON(http.StatusUnauthorized, gin.H{"errors": "Неавторизован"})
 		return
 	}
 
@@ -24,7 +24,7 @@ func InfoHandler(c *gin.Context) {
 	infoService := service.NewInfoService(userRepo, trxRepo, merchRepo, purchaseRepo)
 
 	if answ, err := infoService.GetInfo(user.(string)); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	} else {
 		c.JSON(http.StatusOK, answ)
