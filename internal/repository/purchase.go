@@ -12,23 +12,24 @@ type PurchaseRepository interface {
 	GetByUserAndMerch(userID uint, merchId uint) (*model.Purchase, error)
 	GetListByUserID(userID uint) ([]*model.Purchase, error)
 	Update(p model.Purchase) error
+	ProcessPurchase(user *model.User, merch *model.Merch) error
 }
 
-type purchaseRepository struct {
+type purchaseRep struct {
 	DB *gorm.DB
 }
 
 func NewPurchaseRepository(DB *gorm.DB) PurchaseRepository {
-	return &purchaseRepository{
+	return &purchaseRep{
 		DB: DB,
 	}
 }
 
-func (r *purchaseRepository) Create(tx *model.Purchase) error {
+func (r *purchaseRep) Create(tx *model.Purchase) error {
 	return r.DB.Create(tx).Error
 }
 
-func (r *purchaseRepository) GetByUserAndMerch(userID uint, merchId uint) (*model.Purchase, error) {
+func (r *purchaseRep) GetByUserAndMerch(userID uint, merchId uint) (*model.Purchase, error) {
 	var purchase model.Purchase
 
 	if err := r.DB.Where("user_id = ? AND merch_id = ?", userID, merchId).First(&purchase).Error; err != nil {
@@ -39,7 +40,7 @@ func (r *purchaseRepository) GetByUserAndMerch(userID uint, merchId uint) (*mode
 	return &purchase, nil
 }
 
-func (r *purchaseRepository) GetListByUserID(userID uint) ([]*model.Purchase, error) {
+func (r *purchaseRep) GetListByUserID(userID uint) ([]*model.Purchase, error) {
 	var purchases []*model.Purchase
 
 	if err := r.DB.Where("user_id = ?", userID).Find(&purchases).Error; err != nil {
@@ -49,7 +50,7 @@ func (r *purchaseRepository) GetListByUserID(userID uint) ([]*model.Purchase, er
 	return purchases, nil
 }
 
-func (r *purchaseRepository) Update(p model.Purchase) error {
+func (r *purchaseRep) Update(p model.Purchase) error {
 	result := r.DB.Model(&model.Purchase{}).
 		Where("user_id = ? AND merch_id = ?", p.UserID, p.MerchID).
 		Update("count", p.Count)
@@ -63,4 +64,38 @@ func (r *purchaseRepository) Update(p model.Purchase) error {
 	}
 
 	return nil
+}
+
+func (r *purchaseRep) ProcessPurchase(user *model.User, merch *model.Merch) error {
+	tx := r.DB.Begin()
+
+	// Обновляем баланс пользователя
+	user.Balance -= merch.Price
+	if err := tx.Save(user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Проверяем, есть ли уже покупка
+	purchase, err := r.GetByUserAndMerch(user.ID, merch.ID)
+	if err != nil {
+		// Если покупки не было, создаем новую
+		newPurchase := model.Purchase{
+			UserID:  user.ID,
+			MerchID: merch.ID,
+			Count:   1,
+		}
+		if err := tx.Create(&newPurchase).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else {
+		purchase.Count += 1
+		if err := tx.Save(purchase).Error; err != nil {
+			tx.Rollback()
+			return fmt.Errorf("Не удалось обновить данные")
+		}
+	}
+
+	return tx.Commit().Error
 }

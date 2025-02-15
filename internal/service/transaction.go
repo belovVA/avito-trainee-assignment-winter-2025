@@ -26,13 +26,12 @@ func NewTransactionService(
 
 // SendCoins — переводит монеты от одного пользователя другому
 func (s *trx) SendCoins(fromUserName string, toUserName string, amount int) error {
-	// Получаем отправителя
+
 	fromUser, err := s.userRepo.GetByName(fromUserName)
 	if err != nil {
 		return fmt.Errorf("отправитель не найден")
 	}
 
-	// Получаем получателя
 	toUser, err := s.userRepo.GetByName(toUserName)
 	if err != nil {
 		return fmt.Errorf("получатель не найден")
@@ -46,35 +45,5 @@ func (s *trx) SendCoins(fromUserName string, toUserName string, amount int) erro
 		return fmt.Errorf("недостаточно средств")
 	}
 
-	// // Начинаем транзакцию
-	// tx := database.DB.Begin()
-
-	// // Обновляем балансы
-	// fromUser.Balance -= amount
-	// toUser.Balance += amount
-
-	// // Обновляем в БД
-	// if err := tx.Save(fromUser).Error; err != nil {
-	// 	tx.Rollback()
-	// 	return err
-	// }
-	// if err := tx.Save(toUser).Error; err != nil {
-	// 	tx.Rollback()
-	// 	return err
-	// }
-
-	// // Создаём запись о транзакции
-	// transaction := model.Transaction{
-	// 	FromUser: fromUser.ID,
-	// 	ToUser:   toUser.ID,
-	// 	Amount:   amount,
-	// }
-	// if err := tx.Create(&transaction).Error; err != nil {
-	// 	tx.Rollback()
-	// 	return err
-	// }
-
-	// // Фиксируем изменения
-	// return tx.Commit().Error
-	return nil
+	return s.txRepo.ProcessTransaction(fromUser, toUser, amount)
 }
