@@ -15,7 +15,7 @@ func LoadJwtConfig() *JwtConfig {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err.Error())
 	} else {
-		log.Println(".env file loaded successfully")
+		// log.Println(".env file loaded successfully")
 	}
 	var cfg JwtConfig
 	err := envconfig.Process("", &cfg)

@@ -27,6 +27,8 @@ func LoadPGConfig() *PGConfig {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	log.Println(config)
+
 	return &config
 }
 
