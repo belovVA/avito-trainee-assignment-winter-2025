@@ -5,17 +5,23 @@ import (
 	"avito-coin-service/internal/model"
 )
 
-type TransactionRepository struct{}
-
-func NewTransactionRepository() *TransactionRepository {
-	return &TransactionRepository{}
+type ITransactionRepository interface {
+	Create(tx *model.Transaction) error
+	GetListRecievedTransactionByID(ID uint) ([]*model.Transaction, error)
+	GetListSentTransactionByID(ID uint) ([]*model.Transaction, error)
 }
 
-func (r *TransactionRepository) Create(tx *model.Transaction) error {
+type transactionRepository struct{}
+
+func NewTransactionRepository() ITransactionRepository {
+	return &transactionRepository{}
+}
+
+func (r *transactionRepository) Create(tx *model.Transaction) error {
 	return database.DB.Create(tx).Error
 }
 
-func (r *TransactionRepository) GetListRecievedTransactionByID(ID uint) ([]*model.Transaction, error) {
+func (r *transactionRepository) GetListRecievedTransactionByID(ID uint) ([]*model.Transaction, error) {
 	var trxs []*model.Transaction
 	if err := database.DB.Where("to_user = ?", ID).Find(&trxs).Error; err != nil {
 		return nil, err
@@ -23,7 +29,7 @@ func (r *TransactionRepository) GetListRecievedTransactionByID(ID uint) ([]*mode
 	return trxs, nil
 }
 
-func (r *TransactionRepository) GetListSentTransactionByID(ID uint) ([]*model.Transaction, error) {
+func (r *transactionRepository) GetListSentTransactionByID(ID uint) ([]*model.Transaction, error) {
 	var trxs []*model.Transaction
 	if err := database.DB.Where("from_user = ?", ID).Find(&trxs).Error; err != nil {
 		return nil, err

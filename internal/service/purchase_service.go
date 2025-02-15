@@ -7,26 +7,30 @@ import (
 	"fmt"
 )
 
-type PurchaseService struct {
-	userRepo     *repository.UserRepository
-	merchRepo    *repository.MerchRepository
-	purchaseRepo *repository.PurchaseRepository
+type IPurchaseService interface {
+	BuyMerch(userName string, merchName string) error
+}
+
+type purchaseService struct {
+	userRepo     repository.IUserRepository
+	merchRepo    repository.IMerchRepository
+	purchaseRepo repository.IPurchaseRepository
 }
 
 func NewPurchaseService(
-	userRepo *repository.UserRepository,
-	merchRepo *repository.MerchRepository,
-	purchaseRepo *repository.PurchaseRepository,
-) *PurchaseService {
+	userRepo repository.IUserRepository,
+	merchRepo repository.IMerchRepository,
+	purchaseRepo repository.IPurchaseRepository,
+) *purchaseService {
 
-	return &PurchaseService{
+	return &purchaseService{
 		userRepo:     userRepo,
 		merchRepo:    merchRepo,
 		purchaseRepo: purchaseRepo,
 	}
 }
 
-func (s *PurchaseService) BuyMerch(userName string, merchName string) error {
+func (s *purchaseService) BuyMerch(userName string, merchName string) error {
 
 	user, err := s.userRepo.GetByName(userName)
 	if err != nil {

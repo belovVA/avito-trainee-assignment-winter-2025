@@ -5,6 +5,12 @@ import (
 	"avito-coin-service/internal/model"
 )
 
+type IUserRepository interface {
+	Create(user *model.User) error
+	GetByID(ID uint) (*model.User, error)
+	GetByName(name string) (*model.User, error)
+}
+
 type UserRepository struct{}
 
 func NewUserRepository() *UserRepository {

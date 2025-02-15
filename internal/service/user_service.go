@@ -9,11 +9,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserService struct {
-	userRepo *repository.UserRepository
+type IUserService interface {
+	Authenticate(name, password string) (string, error)
 }
 
-func NewUserService(userRepo *repository.UserRepository) *UserService {
+type UserService struct {
+	userRepo repository.IUserRepository
+}
+
+func NewUserService(
+	userRepo repository.IUserRepository,
+) *UserService {
 
 	return &UserService{userRepo}
 }
@@ -23,7 +29,7 @@ func (s *UserService) Authenticate(name, password string) (string, error) {
 
 	if err != nil {
 
-		if hashPass, err := HashPassword(password); err != nil {
+		if hashPass, err := hashPassword(password); err != nil {
 			return "", err
 
 		} else {
@@ -46,7 +52,7 @@ func (s *UserService) Authenticate(name, password string) (string, error) {
 		}
 	}
 
-	if !ComparePasswords(user.Password, password) {
+	if !comparePasswords(user.Password, password) {
 		return "", fmt.Errorf("неверный пароль")
 	}
 
@@ -57,7 +63,7 @@ func (s *UserService) Authenticate(name, password string) (string, error) {
 	}
 }
 
-func HashPassword(password string) (string, error) {
+func hashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -69,7 +75,7 @@ func HashPassword(password string) (string, error) {
 }
 
 // ComparePasswords сравнивает хэшированный пароль с введенным
-func ComparePasswords(hashedPassword, plainPassword string) bool {
+func comparePasswords(hashedPassword, plainPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
 
 	return err == nil

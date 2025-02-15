@@ -7,20 +7,27 @@ import (
 	"fmt"
 )
 
-type TransactionService struct {
-	userRepo *repository.UserRepository
-	txRepo   *repository.TransactionRepository
+type ITransactionService interface {
+	SendCoins(fromUserName string, toUserName string, amount int) error
 }
 
-func NewTransactionService(userRepo *repository.UserRepository, txRepo *repository.TransactionRepository) *TransactionService {
-	return &TransactionService{
+type transactionService struct {
+	userRepo repository.IUserRepository
+	txRepo   repository.ITransactionRepository
+}
+
+func NewTransactionService(
+	userRepo repository.IUserRepository,
+	txRepo repository.ITransactionRepository,
+) *transactionService {
+	return &transactionService{
 		userRepo: userRepo,
 		txRepo:   txRepo,
 	}
 }
 
 // SendCoins — переводит монеты от одного пользователя другому
-func (s *TransactionService) SendCoins(fromUserName string, toUserName string, amount int) error {
+func (s *transactionService) SendCoins(fromUserName string, toUserName string, amount int) error {
 	// Получаем отправителя
 	fromUser, err := s.userRepo.GetByName(fromUserName)
 	if err != nil {
