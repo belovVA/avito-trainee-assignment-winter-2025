@@ -10,8 +10,8 @@ services:
         # енвы подключения к БД
         - DATABASE_PORT=5432
         - DATABASE_USER=postgres
-        - DATABASE_PASSWORD=postgres
-        - DATABASE_NAME=avito
+        - DATABASE_PASSWORD=password
+        - DATABASE_NAME=shop
         - DATABASE_HOST=db
         # порт сервиса
         - SERVER_PORT=8080
@@ -28,9 +28,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: shop
-    volumes:
-      # "./migrations/init.sql" - путь к миграциям БД
-      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     healthcheck:
@@ -39,6 +36,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    volumes:
+         - ./migrations/up:/docker-entrypoint-initdb.d
+
     networks:
       - internal
 networks:
