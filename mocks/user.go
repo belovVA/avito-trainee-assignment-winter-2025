@@ -25,10 +25,7 @@ func (m *MockUserRepository) GetByName(name string) (*model.User, error) {
 // GetByID - мок метода получения пользователя по ID
 func (m *MockUserRepository) GetByID(ID uint) (*model.User, error) {
 	args := m.Called(ID)
-	if args.Get(0) != nil {
-		return args.Get(0).(*model.User), args.Error(1)
-	}
-	return nil, args.Error(1)
+	return args.Get(0).(*model.User), args.Error(1)
 }
 
 // Create - мок метода создания пользователя

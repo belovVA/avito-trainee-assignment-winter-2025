@@ -7,7 +7,7 @@ import (
 )
 
 type MerchRepository interface {
-	Create(tx *model.Merch) error
+	// Create(tx *model.Merch) error
 	GetByID(id uint) (*model.Merch, error)
 	GetByName(name string) (*model.Merch, error)
 }
@@ -22,9 +22,9 @@ func NewMerchRepository(DB *gorm.DB) MerchRepository {
 	}
 }
 
-func (r *merchRep) Create(tx *model.Merch) error {
-	return r.DB.Create(tx).Error
-}
+// func (r *merchRep) Create(tx *model.Merch) error {
+// 	return r.DB.Create(tx).Error
+// }
 
 func (r *merchRep) GetByID(id uint) (*model.Merch, error) {
 	var merch model.Merch

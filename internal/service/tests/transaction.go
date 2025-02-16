@@ -6,8 +6,10 @@ import (
 	"avito-coin-service/mocks"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestSendCoins(t *testing.T) {
@@ -48,6 +50,7 @@ func TestSendCoins(t *testing.T) {
 			mockSetup: func() {
 				mockUserRepo.On("GetByName", "Alice").Return(fromUser, nil)
 				mockUserRepo.On("GetByName", "Bob").Return(toUser, nil)
+				mockTxRepo.On("Create", mock.AnythingOfType("*model.Transaction")).Return(nil)
 				mockTxRepo.On("ProcessTransaction", fromUser, toUser, 200).Return(nil)
 			},
 			expectError:   false,
@@ -100,6 +103,7 @@ func TestSendCoins(t *testing.T) {
 			expectedError: "недостаточно средств",
 		},
 	}
+	start := time.Now()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -118,4 +122,6 @@ func TestSendCoins(t *testing.T) {
 			mockTxRepo.AssertExpectations(t)
 		})
 	}
+	elapsed := time.Since(start)
+	t.Logf("Время выполнения: %d ns", elapsed.Nanoseconds())
 }

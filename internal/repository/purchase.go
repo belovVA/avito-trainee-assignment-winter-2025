@@ -11,7 +11,7 @@ type PurchaseRepository interface {
 	Create(tx *model.Purchase) error
 	GetByUserAndMerch(userID uint, merchId uint) (*model.Purchase, error)
 	GetListByUserID(userID uint) ([]*model.Purchase, error)
-	Update(p model.Purchase) error
+	Update(p *model.Purchase) error
 	ProcessPurchase(user *model.User, merch *model.Merch) error
 }
 
@@ -50,7 +50,7 @@ func (r *purchaseRep) GetListByUserID(userID uint) ([]*model.Purchase, error) {
 	return purchases, nil
 }
 
-func (r *purchaseRep) Update(p model.Purchase) error {
+func (r *purchaseRep) Update(p *model.Purchase) error {
 	result := r.DB.Model(&model.Purchase{}).
 		Where("user_id = ? AND merch_id = ?", p.UserID, p.MerchID).
 		Update("count", p.Count)
@@ -93,7 +93,7 @@ func (r *purchaseRep) ProcessPurchase(user *model.User, merch *model.Merch) erro
 		purchase.Count += 1
 		if err := tx.Save(purchase).Error; err != nil {
 			tx.Rollback()
-			return fmt.Errorf("Не удалось обновить данные")
+			return fmt.Errorf("не удалось обновить данные")
 		}
 	}
 

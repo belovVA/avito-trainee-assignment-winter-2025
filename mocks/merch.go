@@ -10,10 +10,10 @@ type MockMerchRepository struct {
 	mock.Mock
 }
 
-func (m *MockMerchRepository) Create(tx *model.Merch) error {
-	args := m.Called(tx)
-	return args.Error(0)
-}
+// func (m *MockMerchRepository) Create(tx *model.Merch) error {
+// 	args := m.Called(tx)
+// 	return args.Error(0)
+// }
 
 func (m *MockMerchRepository) GetByID(id uint) (*model.Merch, error) {
 	args := m.Called(id)

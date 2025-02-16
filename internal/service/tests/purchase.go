@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestBuyMerch(t *testing.T) {
@@ -59,7 +60,7 @@ func TestBuyMerch(t *testing.T) {
 			expectError: true,
 		},
 		{
-			name:      "Успешная покупка",
+			name:      "Успешная покупка нового товара",
 			Name:      "goodMoney",
 			merchName: "T-shirt",
 			mockSetup: func() {
@@ -67,10 +68,28 @@ func TestBuyMerch(t *testing.T) {
 				merch := &model.Merch{ID: 1, Name: "T-shirt", Price: 200}
 
 				mockUserRepo.On("GetByName", "goodMoney").Return(user, nil)
-
+				mockPurchaseRepo.On("Create", mock.AnythingOfType("*model.Purchase")).Return(nil)
 				mockMerchRepo.On("GetByName", "T-shirt").Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
-
+				mockPurchaseRepo.On("GetByUserAndMerch", uint(0), uint(1)).Return(nil, errors.New("not found"))
 				mockPurchaseRepo.On("ProcessPurchase", user, merch).Return(nil)
+
+			},
+			expectError: false,
+		},
+		{
+			name:      "Успешная покупка товара который уже был",
+			Name:      "And",
+			merchName: "T-shirt",
+			mockSetup: func() {
+				user := &model.User{ID: 7, Name: "And", Balance: 500}
+				merch := &model.Merch{ID: 1, Name: "T-shirt", Price: 200}
+
+				mockUserRepo.On("GetByName", "And").Return(user, nil)
+				mockPurchaseRepo.On("Create", mock.AnythingOfType("*model.Purchase")).Return(nil)
+				mockMerchRepo.On("GetByName", "T-shirt").Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
+				mockPurchaseRepo.On("GetByUserAndMerch", user.ID, merch.ID).Return(&model.Purchase{UserID: user.ID, MerchID: merch.ID, Count: 1}, nil)
+				mockPurchaseRepo.On("ProcessPurchase", user, merch).Return(nil)
+				mockPurchaseRepo.On("Update", mock.AnythingOfType("*model.Purchase")).Return(nil)
 
 			},
 			expectError: false,

@@ -17,6 +17,12 @@ func (m *MockTransactionRepository) Create(tx *model.Transaction) error {
 
 func (m *MockTransactionRepository) ProcessTransaction(fromUser *model.User, toUser *model.User, amount int) error {
 	args := m.Called(fromUser, toUser, amount)
+	transaction := model.Transaction{
+		FromUser: fromUser.ID,
+		ToUser:   toUser.ID,
+		Amount:   amount,
+	}
+	m.Create(&transaction)
 	return args.Error(0)
 }
 

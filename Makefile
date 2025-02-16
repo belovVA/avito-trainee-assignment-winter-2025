@@ -2,7 +2,7 @@ run:
 	go run cmd/avito-shop/main.go
 
 test:
-	GO_ENV=test go test ./internal/service/tests/...
+	GO_ENV=test go test -v -coverprofile=coverage.out ./...
 
 cover:
-	go test ./... -v -coverpkg=./...
+	GO_ENV=test go tool cover -func=coverage.out
