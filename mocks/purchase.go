@@ -2,7 +2,6 @@ package mocks
 
 import (
 	"avito-coin-service/internal/model"
-	"fmt"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -18,7 +17,6 @@ func (m *MockPurchaseRepository) Create(tx *model.Purchase) error {
 
 func (m *MockPurchaseRepository) GetByUserAndMerch(userID uint, merchId uint) (*model.Purchase, error) {
 	args := m.Called(userID, merchId)
-	fmt.Println(userID, merchId, args)
 	if args.Get(0) != nil {
 		return args.Get(0).(*model.Purchase), args.Error(1)
 	}
@@ -40,7 +38,6 @@ func (m *MockPurchaseRepository) ProcessPurchase(user *model.User, merch *model.
 	args := m.Called(user, merch)
 	user.Balance -= merch.Price
 	purch, err := m.GetByUserAndMerch(user.ID, merch.ID)
-	fmt.Println(purch)
 	if err != nil {
 		// Если покупки не было, создаем новую
 		newPurchase := model.Purchase{

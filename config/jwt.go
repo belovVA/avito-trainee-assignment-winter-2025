@@ -17,15 +17,13 @@ func LoadJwtConfig() *JwtConfig {
 	// 		Key: "123",
 	// 	}
 	// }
-	if err := godotenv.Load("../.env"); err != nil {
+	if err := godotenv.Load("../../../.env"); err != nil {
 		log.Fatal(err.Error())
-	} else {
-		// log.Println(".env file loaded successfully")
 	}
 	var cfg JwtConfig
 	err := envconfig.Process("", &cfg)
 	if err != nil {
-		log.Fatalf("pizda %s", err.Error())
+		log.Fatalf(".env:  %s", err.Error())
 	}
 	return &cfg
 }
