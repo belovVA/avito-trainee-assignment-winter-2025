@@ -27,34 +27,6 @@ func LoadPGConfig() *PGConfig {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	log.Println(config)
 
 	return &config
 }
-
-// func LoadPGConfig() *PGConfig {
-// 	if err := godotenv.Load(); err != nil {
-// 		log.Fatal(err.Error())
-// 	}
-
-// 	config := &PGConfig{
-// 		Host:     getEnv("DATABASE_HOST", "localhost"),
-// 		User:     getEnv("DATABASE_USER", "postgres"),
-// 		Password: getEnv("DATABASE_PASSWORD", "postgres"),
-// 		Name:     getEnv("DATABASE_NAME", "avito"),
-// 		Port:     getEnv("DATABASE_PORT", "5432"),
-// 		// JWTSecret:  getEnv("JWT_SECRET", "mySecretKey"),
-// 	}
-
-// 	// middleware.InitsecretKey(config.JWTSecret)
-
-// 	return config
-// }
-
-// func getEnv(key, defaultValue string) string {
-// 	value, exists := os.LookupEnv(key)
-// 	if !exists {
-// 		return defaultValue
-// 	}
-// 	return value
-// }
