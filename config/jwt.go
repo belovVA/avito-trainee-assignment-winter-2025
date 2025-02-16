@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -12,6 +13,11 @@ type JwtConfig struct {
 }
 
 func LoadJwtConfig() *JwtConfig {
+	if os.Getenv("GO_ENV") == "test" {
+		return &JwtConfig{
+			Key: "123",
+		}
+	}
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err.Error())
 	} else {

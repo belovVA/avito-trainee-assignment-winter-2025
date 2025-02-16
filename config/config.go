@@ -17,7 +17,7 @@ type PGConfig struct {
 
 func LoadPGConfig() *PGConfig {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal(err.Error())
+		log.Fatalf("PG Config: %s", err.Error())
 	} else {
 		log.Println(".env file loaded successfully")
 	}

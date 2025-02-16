@@ -29,7 +29,7 @@ func (s *usrSrv) Authenticate(name, password string) (string, error) {
 
 	if err != nil {
 
-		if hashPass, err := hashPassword(password); err != nil {
+		if hashPass, err := HashPassword(password); err != nil {
 			return "", err
 
 		} else {
@@ -52,7 +52,7 @@ func (s *usrSrv) Authenticate(name, password string) (string, error) {
 		}
 	}
 
-	if !comparePasswords(user.Password, password) {
+	if !ComparePasswords(user.Password, password) {
 		return "", fmt.Errorf("неверный пароль")
 	}
 
@@ -63,7 +63,7 @@ func (s *usrSrv) Authenticate(name, password string) (string, error) {
 	}
 }
 
-func hashPassword(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -75,7 +75,7 @@ func hashPassword(password string) (string, error) {
 }
 
 // ComparePasswords сравнивает хэшированный пароль с введенным
-func comparePasswords(hashedPassword, plainPassword string) bool {
+func ComparePasswords(hashedPassword, plainPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
 
 	return err == nil
