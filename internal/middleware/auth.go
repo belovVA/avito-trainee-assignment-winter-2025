@@ -7,37 +7,48 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AuthMiddleware проверяет JWT перед доступом к защищённым ресурсам
+// AuthMiddleware checks JWT before accessing protected resources
 func AuthMiddleware() gin.HandlerFunc {
+
 	return func(c *gin.Context) {
+
 		authHeader := c.GetHeader("Authorization")
+
 		if authHeader == "" {
+
 			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Токен отсутствует"})
 			c.Abort()
+
 			return
 		}
 
-		// Ожидаем формат "Bearer <token>"
+		// Expecting format "Bearer <token>"
 		parts := strings.Split(authHeader, " ")
+
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Неверный формат токена"})
+
+			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Invalid token format"})
 			c.Abort()
+
 			return
 		}
 
 		tokenString := parts[1]
 
-		// Проверяем токен
+		// Check token
 		userName, err := ValidateToken(tokenString)
+
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Неверный токен"})
+
+			c.JSON(http.StatusUnauthorized, gin.H{"errors": "Invalid token"})
 			c.Abort()
+
 			return
 		}
 
-		// Сохраняем имя пользователя в контексте запроса
+		// Save username in Cotnext request
 		c.Set("userName", userName)
 
-		c.Next() // Передаём запрос дальше
+		c.Next() // Passing the request
 	}
 }

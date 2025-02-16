@@ -32,7 +32,6 @@ func (r *userRep) GetByID(ID uint) (*model.User, error) {
 	var user model.User
 
 	if err := r.DB.Where("id = ?", ID).First(&user).Error; err != nil {
-
 		return nil, err
 	}
 
@@ -43,7 +42,6 @@ func (r *userRep) GetByName(name string) (*model.User, error) {
 	var user model.User
 
 	if err := r.DB.Where("name = ?", name).First(&user).Error; err != nil {
-
 		return nil, err
 	}
 

@@ -12,21 +12,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// App представляет приложение
+// App present the main application
 type App struct {
 	Router *gin.Engine
 }
 
-// // NewApp создает новое приложение
+// NewApp creates pointer on new up
 func NewApp() *App {
 	cfg := config.LoadPGConfig()
 
 	log.Println("Config has been uploaded")
 
-	// Инициализируем подключение к базе данных с конфигурацией
 	pg := database.InitDB(cfg)
 
-	// Инициализация реопзиториев
+	// repository
 	userRepo := repository.NewUserRepository(pg.DBptr)
 	trxRepo := repository.NewTransactionRepository(pg.DBptr)
 	purchRepo := repository.NewPurchaseRepository(pg.DBptr)
@@ -43,7 +42,6 @@ func NewApp() *App {
 	s := handler.NewTransactionHandler(trxService)
 	p := handler.NewPurchHandler(purchService)
 	i := handler.NewInfoHandler(infoService)
-	// database.Migrate()
 
 	r := gin.Default()
 
@@ -51,6 +49,7 @@ func NewApp() *App {
 
 	apiAuth.POST("/auth", a.AuthHandler)
 
+	// Requesting authorization
 	apiAuth.Use(middleware.AuthMiddleware())
 	{
 		apiAuth.POST("/sendCoin", s.SendCoinHandler)
@@ -63,7 +62,7 @@ func NewApp() *App {
 	}
 }
 
-// Run запускает сервер
+// Run starts the server
 func (a *App) Run(address string) {
 	log.Printf("Server is running on %s", address)
 	if err := a.Router.Run(address); err != nil {

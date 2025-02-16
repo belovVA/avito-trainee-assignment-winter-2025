@@ -1,11 +1,12 @@
 package service_test
 
 import (
+	"errors"
+	"testing"
+
 	"avito-coin-service/internal/model"
 	"avito-coin-service/internal/service"
 	"avito-coin-service/mocks"
-	"errors"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,8 +19,6 @@ func TestBuyMerch(t *testing.T) {
 
 	purchaseService := service.NewPurchaseService(mockUserRepo, mockMerchRepo, mockPurchaseRepo)
 
-	// Создадим пользователей для теста
-
 	tests := []struct {
 		name        string
 		Name        string
@@ -28,68 +27,97 @@ func TestBuyMerch(t *testing.T) {
 		expectError bool
 	}{
 		{
-			name:      "Пользователь не найден",
+			name:      "user not found",
 			Name:      "NotFound",
 			merchName: "T-shirt",
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "NotFound").Return(nil, errors.New("not found"))
+
+				mockUserRepo.On("GetByName", "NotFound").
+					Return(nil, errors.New("not found"))
 
 			},
 			expectError: true,
 		},
 		{
-			name:      "Мерч не найден",
+			name:      "Merch not found",
 			Name:      "Alice",
 			merchName: "NoMerch",
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "Alice").Return(&model.User{Name: "Alice", Balance: 300}, nil)
-				mockMerchRepo.On("GetByName", "NoMerch").Return(nil, errors.New("not found"))
-				// Добавьте выводы для отладки
+
+				mockUserRepo.On("GetByName", "Alice").
+					Return(&model.User{Name: "Alice", Balance: 300}, nil)
+
+				mockMerchRepo.On("GetByName", "NoMerch").
+					Return(nil, errors.New("not found"))
 			},
 			expectError: true,
 		},
 		{
-			name:      "Недостаточно средств",
+			name:      "Insufficient funds",
 			Name:      "littleMoney",
 			merchName: "T-shirt",
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "littleMoney").Return(&model.User{ID: 3, Name: "littleMoney", Password: "11", Balance: 100}, nil)
-				mockMerchRepo.On("GetByName", "T-shirt").Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
+
+				mockUserRepo.On("GetByName", "littleMoney").
+					Return(&model.User{ID: 3, Name: "littleMoney", Password: "11", Balance: 100}, nil)
+
+				mockMerchRepo.On("GetByName", "T-shirt").
+					Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
 
 			},
 			expectError: true,
 		},
 		{
-			name:      "Успешная покупка нового товара",
+			name:      "Successful purchase of a new product",
 			Name:      "goodMoney",
 			merchName: "T-shirt",
 			mockSetup: func() {
 				user := &model.User{Name: "goodMoney", Balance: 500}
 				merch := &model.Merch{ID: 1, Name: "T-shirt", Price: 200}
 
-				mockUserRepo.On("GetByName", "goodMoney").Return(user, nil)
-				mockPurchaseRepo.On("Create", mock.AnythingOfType("*model.Purchase")).Return(nil)
-				mockMerchRepo.On("GetByName", "T-shirt").Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
-				mockPurchaseRepo.On("GetByUserAndMerch", uint(0), uint(1)).Return(nil, errors.New("not found"))
-				mockPurchaseRepo.On("ProcessPurchase", user, merch).Return(nil)
+				mockUserRepo.On("GetByName", "goodMoney").
+					Return(user, nil)
+
+				mockPurchaseRepo.On("Create", mock.AnythingOfType("*model.Purchase")).
+					Return(nil)
+
+				mockMerchRepo.On("GetByName", "T-shirt").
+					Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
+
+				mockPurchaseRepo.On("GetByUserAndMerch", uint(0), uint(1)).
+					Return(nil, errors.New("not found"))
+
+				mockPurchaseRepo.On("ProcessPurchase", user, merch).
+					Return(nil)
 
 			},
 			expectError: false,
 		},
 		{
-			name:      "Успешная покупка товара который уже был",
+			name:      "Successful purchase of a product that has already been",
 			Name:      "And",
 			merchName: "T-shirt",
 			mockSetup: func() {
 				user := &model.User{ID: 7, Name: "And", Balance: 500}
 				merch := &model.Merch{ID: 1, Name: "T-shirt", Price: 200}
 
-				mockUserRepo.On("GetByName", "And").Return(user, nil)
-				mockPurchaseRepo.On("Create", mock.AnythingOfType("*model.Purchase")).Return(nil)
-				mockMerchRepo.On("GetByName", "T-shirt").Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
-				mockPurchaseRepo.On("GetByUserAndMerch", user.ID, merch.ID).Return(&model.Purchase{UserID: user.ID, MerchID: merch.ID, Count: 1}, nil)
-				mockPurchaseRepo.On("ProcessPurchase", user, merch).Return(nil)
-				mockPurchaseRepo.On("Update", mock.AnythingOfType("*model.Purchase")).Return(nil)
+				mockUserRepo.On("GetByName", "And").
+					Return(user, nil)
+
+				mockPurchaseRepo.On("Create", mock.AnythingOfType("*model.Purchase")).
+					Return(nil)
+
+				mockMerchRepo.On("GetByName", "T-shirt").
+					Return(&model.Merch{ID: 1, Name: "T-shirt", Price: 200}, nil)
+
+				mockPurchaseRepo.On("GetByUserAndMerch", user.ID, merch.ID).
+					Return(&model.Purchase{UserID: user.ID, MerchID: merch.ID, Count: 1}, nil)
+
+				mockPurchaseRepo.On("ProcessPurchase", user, merch).
+					Return(nil)
+
+				mockPurchaseRepo.On("Update", mock.AnythingOfType("*model.Purchase")).
+					Return(nil)
 
 			},
 			expectError: false,
@@ -108,9 +136,9 @@ func TestBuyMerch(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			// mockUserRepo.AssertExpectations(t)
-			// mockMerchRepo.AssertExpectations(t)
-			// mockPurchaseRepo.AssertExpectations(t)
+			mockUserRepo.AssertExpectations(t)
+			mockMerchRepo.AssertExpectations(t)
+			mockPurchaseRepo.AssertExpectations(t)
 
 		})
 	}

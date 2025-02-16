@@ -17,13 +17,16 @@ type MockMerchRepository struct {
 
 func (m *MockMerchRepository) GetByID(id uint) (*model.Merch, error) {
 	args := m.Called(id)
+
 	return args.Get(0).(*model.Merch), args.Error(1)
 }
 
 func (m *MockMerchRepository) GetByName(name string) (*model.Merch, error) {
 	args := m.Called(name)
+
 	if args.Get(0) != nil {
 		return args.Get(0).(*model.Merch), args.Error(1)
 	}
+
 	return nil, args.Error(1)
 }

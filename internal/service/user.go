@@ -1,10 +1,11 @@
 package service
 
 import (
-	"avito-coin-service/internal/middleware"
-	models "avito-coin-service/internal/model"
-	"avito-coin-service/internal/repository"
 	"fmt"
+
+	"avito-coin-service/internal/middleware"
+	"avito-coin-service/internal/model"
+	"avito-coin-service/internal/repository"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,7 +34,8 @@ func (s *usrSrv) Authenticate(name, password string) (string, error) {
 			return "", err
 
 		} else {
-			user = &models.User{
+
+			user = &model.User{
 				Name:     name,
 				Password: hashPass,
 				Balance:  1000,
@@ -48,6 +50,7 @@ func (s *usrSrv) Authenticate(name, password string) (string, error) {
 			return "", err
 
 		} else {
+
 			return token, nil
 		}
 	}
@@ -58,7 +61,9 @@ func (s *usrSrv) Authenticate(name, password string) (string, error) {
 
 	if token, err := middleware.CreateToken(user.Name); err != nil {
 		return "", err
+
 	} else {
+
 		return token, nil
 	}
 }
@@ -67,7 +72,6 @@ func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
-
 		return "", err
 	}
 

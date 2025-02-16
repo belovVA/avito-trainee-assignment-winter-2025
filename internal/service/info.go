@@ -37,7 +37,7 @@ func (s *infoSrv) GetInfo(userName string) (*model.InfoResponse, error) {
 	user, err := s.userRepo.GetByName(userName)
 
 	if err != nil {
-		return nil, fmt.Errorf("пользователь не найден")
+		return nil, fmt.Errorf("user not found")
 	}
 
 	var info model.InfoResponse
@@ -45,47 +45,51 @@ func (s *infoSrv) GetInfo(userName string) (*model.InfoResponse, error) {
 	inventory, _ := s.purchaseRepo.GetListByUserID(user.ID)
 	info.Inventory = make([]model.InventoryItem, 0, len(inventory))
 
-	if inventory != nil {
-
-		for _, p := range inventory {
-			merch, err := s.merchRepo.GetByID(p.MerchID)
-			if err != nil {
-				continue
-			}
-			var item model.InventoryItem
-			item.Type = merch.Name
-			item.Quantity = p.Count
-			info.Inventory = append(info.Inventory, item)
-
+	for _, p := range inventory {
+		merch, err := s.merchRepo.GetByID(p.MerchID)
+		if err != nil {
+			continue
 		}
+		var item model.InventoryItem
+		item.Type = merch.Name
+		item.Quantity = p.Count
+		info.Inventory = append(info.Inventory, item)
+
 	}
 
 	recieved, _ := s.txRepo.GetListRecievedTransactionByID(user.ID)
 	info.CoinHistory.Received = make([]model.CoinTransaction, 0, len(recieved))
-	if recieved != nil {
-		for _, t := range recieved {
-			var trx model.CoinTransaction
-			user, err := s.userRepo.GetByID(t.FromUser)
 
-			if err != nil {
-				return nil, fmt.Errorf("500")
-			}
-			trx.FromUser = user.Name
-			trx.Amount = uint(t.Amount)
-			info.CoinHistory.Received = append(info.CoinHistory.Received, trx)
+	for _, t := range recieved {
 
+		var trx model.CoinTransaction
+
+		user, err := s.userRepo.GetByID(t.FromUser)
+
+		if err != nil {
+			return nil, fmt.Errorf("500")
 		}
+
+		trx.FromUser = user.Name
+		trx.Amount = uint(t.Amount)
+		info.CoinHistory.Received = append(info.CoinHistory.Received, trx)
+
 	}
 
 	sent, err := s.txRepo.GetListSentTransactionByID(user.ID)
 	info.CoinHistory.Sent = make([]model.CoinTransaction, 0, len(sent))
+
 	if err == nil {
+
 		for _, t := range sent {
+
 			var trx model.CoinTransaction
 			user, err := s.userRepo.GetByID(t.ToUser)
+
 			if err != nil {
 				return nil, fmt.Errorf("500")
 			}
+
 			trx.ToUser = user.Name
 			trx.Amount = uint(t.Amount)
 			info.CoinHistory.Sent = append(info.CoinHistory.Sent, trx)

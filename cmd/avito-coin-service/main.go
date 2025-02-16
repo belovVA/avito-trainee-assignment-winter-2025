@@ -1,13 +1,14 @@
 package main
 
 import (
-	"avito-coin-service/internal/app"
 	"log"
+
+	"avito-coin-service/internal/app"
 )
 
 func main() {
-	log.Println("Starting server on :8080")
-
 	application := app.NewApp()
+
+	log.Println("Starting server on :8080")
 	application.Run(":8080")
 }

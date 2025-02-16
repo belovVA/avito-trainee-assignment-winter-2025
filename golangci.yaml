@@ -1,0 +1,57 @@
+linters-settings:
+  govet:
+    check-shadowing: true # Проверять скрытие переменных
+  gocyclo:
+    min-complexity: 10 # Минимальный порог сложности для предупреждений
+  errcheck:
+    check-type-assertions: true # Проверять приведение типов
+  revive:
+    severity: warning # Уровень серьёзности для линтера Revive
+  staticcheck:
+    checks: ["all"] # Включить все проверки Staticcheck
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - revive
+    - gocyclo
+    - gofmt
+    - goimports
+    - unused
+    - ineffassign
+    - typecheck
+    - deadcode
+  disable:
+    - golint # Отключаем устаревший golint
+    - scopelint # Отключаем, если он мешает
+
+issues:
+  max-issues-per-linter: 50 # Ограничение числа ошибок на линтер
+  max-same-issues: 5 # Максимум одинаковых ошибок
+  exclude-rules:
+    - path: _test\.go # Игнорируем тестовые файлы
+      linters:
+        - gocyclo
+    - linters:
+        - gofmt
+      text: "File is not formatted" # Игнорируем ошибки форматирования
+  exclude:
+    - "error return value not checked.*" # Игнорируем ошибки о непроверенных значениях ошибок
+
+run:
+  timeout: 5m # Тайм-аут выполнения линтеров
+  modules-download-mode: readonly # Отключаем автоматическую загрузку модулей
+
+output:
+  format: colored-line-number # Формат вывода ошибок
+  print-issued-lines: true # Показывать строки с ошибками
+  uniq-by-line: true # Исключать дублирующиеся ошибки
+
+tests:
+  skip-dirs:
+    - "vendor"
+    - "mocks"
+  skip-files:
+    - "mock_.*\\.go" # Пропускать файлы с моками

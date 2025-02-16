@@ -1,12 +1,12 @@
 package service_test
 
 import (
-	"avito-coin-service/internal/model"
-	"avito-coin-service/internal/service"
-
-	"avito-coin-service/mocks"
 	"errors"
 	"testing"
+
+	"avito-coin-service/internal/model"
+	"avito-coin-service/internal/service"
+	"avito-coin-service/mocks"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,7 +17,7 @@ func TestAuthenticate(t *testing.T) {
 	mockUserRepo := new(mocks.MockUserRepository)
 	userService := service.NewUserService(mockUserRepo)
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
-	// Таблица тестов
+
 	tests := []struct {
 		name        string
 		inputName   string
@@ -27,28 +27,29 @@ func TestAuthenticate(t *testing.T) {
 		expectError bool
 	}{
 		{
-
-			name:      "Пользователь найден, правильный пароль",
+			name:      "user has been found, and the password is correct",
 			inputName: "testuser",
 			inputPass: "password",
 			mockUser: &model.User{
 				Name:     "testuser",
-				Password: string(hashedPassword), // Хэш "password"
+				Password: string(hashedPassword),
 				Balance:  1000,
 			},
 			mockError:   nil,
 			expectError: false,
 		},
+
 		{
-			name:        "Пользователь не найден, создаём нового",
+			name:        "user not found, create new",
 			inputName:   "newuser",
 			inputPass:   "newpassword",
 			mockUser:    nil,
-			mockError:   errors.New("пользователь не найден"),
+			mockError:   errors.New("user not found"),
 			expectError: false,
 		},
+
 		{
-			name:      "Пользователь найден, неправильный пароль",
+			name:      "The user has been found, the password is incorrect",
 			inputName: "testuser",
 			inputPass: "wrongpassword",
 			mockUser: &model.User{
@@ -63,6 +64,7 @@ func TestAuthenticate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
 			mockUserRepo.On("GetByName", tt.inputName).Return(tt.mockUser, tt.mockError)
 
 			if tt.mockUser == nil {

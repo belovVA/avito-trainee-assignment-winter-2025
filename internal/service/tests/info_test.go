@@ -1,11 +1,12 @@
 package service_test
 
 import (
+	"fmt"
+	"testing"
+
 	"avito-coin-service/internal/model"
 	"avito-coin-service/internal/service"
 	"avito-coin-service/mocks"
-	"fmt"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -26,22 +27,28 @@ func TestInfoService_GetInfo(t *testing.T) {
 		expectedResult *model.InfoResponse
 	}{
 		{
-			name:     "Успешное получение информации",
+			name:     "Successful receipt of information",
 			userName: "Sandy",
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "Sandy").Return(&model.User{ID: 1, Name: "Sandy", Balance: 500}, nil)
-				mockPurchaseRepo.On("GetListByUserID", uint(1)).Return([]*model.Purchase{
-					{MerchID: 1, Count: 2},
-				}, nil)
-				mockMerchRepo.On("GetByID", uint(1)).Return(&model.Merch{ID: 2, Name: "Pen", Price: 10}, nil)
-				mockUserRepo.On("GetByID", uint(2)).Return(&model.User{ID: 2, Name: "Alice", Balance: 1000}, nil) // Настроить для ID 2
 
-				mockTxRepo.On("GetListRecievedTransactionByID", uint(1)).Return([]*model.Transaction{
-					{FromUser: 2, Amount: 100},
-				}, nil)
-				mockTxRepo.On("GetListSentTransactionByID", uint(1)).Return([]*model.Transaction{
-					{ToUser: 2, Amount: 50},
-				}, nil)
+				mockUserRepo.On("GetByName", "Sandy").
+					Return(&model.User{ID: 1, Name: "Sandy", Balance: 500}, nil)
+
+				mockPurchaseRepo.On("GetListByUserID", uint(1)).
+					Return([]*model.Purchase{{MerchID: 1, Count: 2}}, nil)
+
+				mockMerchRepo.On("GetByID", uint(1)).
+					Return(&model.Merch{ID: 2, Name: "Pen", Price: 10}, nil)
+
+				mockUserRepo.On("GetByID", uint(2)).
+					Return(&model.User{ID: 2, Name: "Alice", Balance: 1000}, nil)
+
+				mockTxRepo.On("GetListRecievedTransactionByID", uint(1)).
+					Return([]*model.Transaction{{FromUser: 2, Amount: 100}}, nil)
+
+				mockTxRepo.On("GetListSentTransactionByID", uint(1)).
+					Return([]*model.Transaction{{ToUser: 2, Amount: 50}}, nil)
+
 			},
 			expectedError: false,
 			expectedResult: &model.InfoResponse{
@@ -60,10 +67,11 @@ func TestInfoService_GetInfo(t *testing.T) {
 			},
 		},
 		{
-			name:     "Ошибка, пользователь не найден",
+			name:     "Error, the user was not found",
 			userName: "Alice",
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "Alice").Return(nil, fmt.Errorf("пользователь не найден"))
+				mockUserRepo.On("GetByName", "Alice").
+					Return(nil, fmt.Errorf("user not found"))
 			},
 			expectedError:  true,
 			expectedResult: nil,
@@ -72,13 +80,14 @@ func TestInfoService_GetInfo(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.mockSetup() // вызываем настройку моков
+			tt.mockSetup()
 
 			info, err := service.GetInfo(tt.userName)
 
 			if tt.expectedError {
 				assert.Error(t, err)
 				assert.Nil(t, info)
+
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResult, info)

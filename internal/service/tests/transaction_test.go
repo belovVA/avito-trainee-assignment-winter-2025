@@ -1,12 +1,12 @@
 package service_test
 
 import (
+	"errors"
+	"testing"
+
 	"avito-coin-service/internal/model"
 	"avito-coin-service/internal/service"
 	"avito-coin-service/mocks"
-	"errors"
-	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,7 +17,6 @@ func TestSendCoins(t *testing.T) {
 	mockTxRepo := new(mocks.MockTransactionRepository)
 	transactionService := service.NewTransactionService(mockUserRepo, mockTxRepo)
 
-	// Создадим пользователей для теста
 	fromUser := &model.User{
 		ID:       1,
 		Name:     "Alice",
@@ -32,7 +31,6 @@ func TestSendCoins(t *testing.T) {
 		Password: "hashedpassword",
 	}
 
-	// Таблица тестов
 	tests := []struct {
 		name          string
 		fromUserName  string
@@ -43,67 +41,88 @@ func TestSendCoins(t *testing.T) {
 		expectedError string
 	}{
 		{
-			name:         "Успешный перевод",
+			name:         "Success transaction",
 			fromUserName: "Alice",
 			toUserName:   "Bob",
 			amount:       200,
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "Alice").Return(fromUser, nil)
-				mockUserRepo.On("GetByName", "Bob").Return(toUser, nil)
-				mockTxRepo.On("Create", mock.AnythingOfType("*model.Transaction")).Return(nil)
-				mockTxRepo.On("ProcessTransaction", fromUser, toUser, 200).Return(nil)
+
+				mockUserRepo.On("GetByName", "Alice").
+					Return(fromUser, nil)
+
+				mockUserRepo.On("GetByName", "Bob").
+					Return(toUser, nil)
+
+				mockTxRepo.On("Create", mock.AnythingOfType("*model.Transaction")).
+					Return(nil)
+
+				mockTxRepo.On("ProcessTransaction", fromUser, toUser, 200).
+					Return(nil)
 			},
 			expectError:   false,
 			expectedError: "",
 		},
+
 		{
-			name:         "Отправитель не найден",
+			name:         "sender not found",
 			fromUserName: "Andrew",
 			toUserName:   "Tim",
 			amount:       200,
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "Andrew").Return(nil, errors.New("отправитель не найден"))
+				mockUserRepo.On("GetByName", "Andrew").
+					Return(nil, errors.New("sender not found"))
 			},
 			expectError:   true,
-			expectedError: "отправитель не найден",
+			expectedError: "sender not found",
 		},
+
 		{
-			name:         "Получатель не найден",
+			name:         "recipient was not found",
 			fromUserName: "test3",
 			toUserName:   "test4",
 			amount:       200,
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "test3").Return(fromUser, nil)
-				mockUserRepo.On("GetByName", "test4").Return(nil, errors.New("получатель не найден"))
+
+				mockUserRepo.On("GetByName", "test3").
+					Return(fromUser, nil)
+
+				mockUserRepo.On("GetByName", "test4").
+					Return(nil, errors.New("recipient was not found"))
 			},
 			expectError:   true,
-			expectedError: "получатель не найден",
+			expectedError: "recipient was not found",
 		},
+
 		{
-			name:         "Невозможно перевести самому себе",
+			name:         "impossible to make transaction to yourself",
 			fromUserName: "Alice",
 			toUserName:   "Alice",
 			amount:       200,
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "Alice").Return(fromUser, nil)
+
+				mockUserRepo.On("GetByName", "Alice").
+					Return(fromUser, nil)
+
 			},
 			expectError:   true,
-			expectedError: "невозможно осуществить перевод самому себе",
+			expectedError: "impossible to make transaction to yourself",
 		},
+
 		{
-			name:         "Недостаточно средств",
+			name:         "Insufficient funds",
 			fromUserName: "Alice",
 			toUserName:   "Bob",
 			amount:       2000,
 			mockSetup: func() {
-				mockUserRepo.On("GetByName", "Alice").Return(fromUser, nil)
-				mockUserRepo.On("GetByName", "Bob").Return(toUser, nil)
+				mockUserRepo.On("GetByName", "Alice").
+					Return(fromUser, nil)
+				mockUserRepo.On("GetByName", "Bob").
+					Return(toUser, nil)
 			},
 			expectError:   true,
-			expectedError: "недостаточно средств",
+			expectedError: "Insufficient funds",
 		},
 	}
-	start := time.Now()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -122,6 +141,4 @@ func TestSendCoins(t *testing.T) {
 			mockTxRepo.AssertExpectations(t)
 		})
 	}
-	elapsed := time.Since(start)
-	t.Logf("Время выполнения: %d ns", elapsed.Nanoseconds())
 }

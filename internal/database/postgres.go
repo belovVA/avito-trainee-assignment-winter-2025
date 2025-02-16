@@ -10,12 +10,13 @@ import (
 	"gorm.io/gorm"
 )
 
+// PG Struct for connection to Posgresql
 type PG struct {
 	DBptr *gorm.DB
 }
 
+// InitDB Initial data to connect DB by PGConfig
 func InitDB(cfg *config.PGConfig) *PG {
-	// Используем данные из конфигурации
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		cfg.Host,
@@ -25,7 +26,6 @@ func InitDB(cfg *config.PGConfig) *PG {
 		cfg.Port,
 	)
 
-	// Подключаемся к базе данных
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error to connect DB: %s", err)
@@ -36,5 +36,4 @@ func InitDB(cfg *config.PGConfig) *PG {
 	return &PG{
 		DBptr: db,
 	}
-
 }

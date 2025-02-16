@@ -16,7 +16,7 @@ func (m *MockUserRepository) GetByName(name string) (*model.User, error) {
 	args := m.Called(name)
 	err := args.Error(1)
 	if err != nil {
-		return nil, fmt.Errorf("пользователь не найден")
+		return nil, fmt.Errorf("user not found")
 
 	}
 	return args.Get(0).(*model.User), nil // Прямо извлекаем значение

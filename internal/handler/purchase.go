@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"avito-coin-service/internal/service"
 	"net/http"
+
+	"avito-coin-service/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,46 +12,46 @@ type PurchaseRequest struct {
 	Merch string
 }
 
-type purchaseH interface {
+// PurchaseHandler interface Handler
+//
+//	API "/api/buy/:item"
+type PurchaseHandler interface {
 	PurchaseHandler(c *gin.Context)
 }
 
-type purchaseHandler struct {
+type purchaseH struct {
 	purchService service.PurchaseService
 }
 
-func NewPurchHandler(p service.PurchaseService) purchaseH {
-	return &purchaseHandler{
+func NewPurchHandler(p service.PurchaseService) PurchaseHandler {
+
+	return &purchaseH{
 		purchService: p,
 	}
 }
-func (h *purchaseHandler) PurchaseHandler(c *gin.Context) {
-	// item := c.Param("item") // Получаем {item} из URL
-	// c.JSON(http.StatusOK, gin.H{
-	// 	// "message": fmt.Sprintf("Покупка товара: %s", item),
-	// })
 
+func (h *purchaseH) PurchaseHandler(c *gin.Context) {
 	itemName := c.Param("item")
 
-	// Проверяем, передан ли параметр
 	if itemName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": "не указан предмет"})
-		return
-	}
-	// Получаем имя отправителя из JWT
-	user, exists := c.Get("userName")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"errors": "Неавторизован"})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": "item didnt get "})
+
 		return
 	}
 
-	// purchService := service.NewPurchaseService(userRepo, merchRepo, purchaseRepo)
+	user, exists := c.Get("userName")
+
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"errors": "Unauthorized"})
+
+		return
+	}
 
 	if err := h.purchService.BuyMerch(user.(string), itemName); err != nil {
+
 		c.JSON(http.StatusBadRequest, gin.H{"errors": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Куплен товар"})
-	return
+	c.JSON(http.StatusOK, gin.H{"message": "purchase successful completed"})
 }

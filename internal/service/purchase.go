@@ -31,17 +31,19 @@ func NewPurchaseService(
 func (s *purchase) BuyMerch(userName string, merchName string) error {
 
 	user, err := s.userRepo.GetByName(userName)
+
 	if err != nil {
-		return fmt.Errorf("пользователь не найден")
+		return fmt.Errorf("user not found")
 	}
 
 	merch, err := s.merchRepo.GetByName(merchName)
+
 	if err != nil {
-		return fmt.Errorf("мерч не найден")
+		return fmt.Errorf("merch not found")
 	}
 
 	if user.Balance < merch.Price {
-		return fmt.Errorf("Недостаточно средств на балансе")
+		return fmt.Errorf("Insufficient funds на балансе")
 	}
 
 	return s.purchaseRepo.ProcessPurchase(user, merch)

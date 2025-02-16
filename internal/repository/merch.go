@@ -30,7 +30,6 @@ func (r *merchRep) GetByID(id uint) (*model.Merch, error) {
 	var merch model.Merch
 
 	if err := r.DB.Where("id = ?", id).First(&merch).Error; err != nil {
-
 		return nil, err
 	}
 
@@ -41,7 +40,6 @@ func (r *merchRep) GetByName(name string) (*model.Merch, error) {
 	var merch model.Merch
 
 	if err := r.DB.Where("name = ?", name).First(&merch).Error; err != nil {
-
 		return nil, err
 	}
 
