@@ -1,10 +1,10 @@
-CREATE TABLE merch (
+CREATE TABLE  IF NOT EXISTS merch (
     id SERIAL PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
     price INT NOT NULL CHECK (price > 0)
 );
 
-INSERT INTO merch (name, price) VALUES
+INSERT INTO IF EXISTS merch (name, price) VALUES
 ('t-shirt', 80),
 ('cup', 20),
 ('book', 50),

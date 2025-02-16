@@ -1,1 +1,1 @@
-DROP TABLE purchases CASCADE;
+DROP TABLE IF EXISTS purchases CASCADE;

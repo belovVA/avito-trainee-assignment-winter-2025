@@ -1,4 +1,4 @@
-CREATE TABLE purchases (
+CREATE TABLE IF NOT EXISTS purchases (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     merch_id INT NOT NULL,
